@@ -1,15 +1,26 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:my_pharma_guide/models/my_user.dart';
 
 class AuthService{
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  //we create our user object based on User from Firebase
+  MyUser? _myUserFromUser(User? user) {
+    return user!=null ? MyUser(uid: user.uid) : null;
+  }
+
+  //auth change user stream
+  Stream<MyUser?> get user{
+    return _auth.authStateChanges().map(_myUserFromUser);
+  }
 
   //sign in anonymously
   Future signInAnon() async{
     try{
       UserCredential result = await _auth.signInAnonymously();
       User? user = result.user;
-      return user;
+      return _myUserFromUser(user);
     } catch(e) {
       print(e.toString());
       return null;
@@ -21,5 +32,12 @@ class AuthService{
   //register with email and password
 
   //sign out
-
+  Future signOut() async{
+    try{
+      return _auth.signOut();
+    } catch(e){
+      print(e.toString());
+      return null;
+    }
+  }
 }
