@@ -14,6 +14,9 @@ class _SignInState extends State<SignIn> {
 
   final AuthService _auth = AuthService();
 
+  String email = '';
+  String password = '';
+
   @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(
@@ -44,7 +47,9 @@ class _SignInState extends State<SignIn> {
                     TextFormField(
                       decoration: textInputDecoration.copyWith(hintText: 'email'),
                       onChanged: (val) {
-
+                        setState(() {
+                          email = val;
+                        });
                       },
                     ),
                     const SizedBox(height: 22.0,),
@@ -52,7 +57,9 @@ class _SignInState extends State<SignIn> {
                       decoration: textInputDecoration.copyWith(hintText: 'password'),
                       obscureText: true,
                       onChanged: (val) {
-
+                        setState(() {
+                          password = val;
+                        });
                       },
                     ),
                   ],
@@ -63,7 +70,10 @@ class _SignInState extends State<SignIn> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () async {
+                      print(email);
+                      print(password);
+                    },
                     child: const Text('Sign In'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.black,

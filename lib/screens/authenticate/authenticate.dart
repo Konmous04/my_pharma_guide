@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_pharma_guide/screens/authenticate/register.dart';
 import 'package:my_pharma_guide/screens/authenticate/sign_in.dart';
 
 class Authenticate extends StatefulWidget {
@@ -11,6 +12,6 @@ class Authenticate extends StatefulWidget {
 class _AuthenticateState extends State<Authenticate> {
   @override
   Widget build(BuildContext context) {
-    return SignIn();
+    return Register();
   }
 }
