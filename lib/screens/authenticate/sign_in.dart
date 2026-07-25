@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:my_pharma_guide/services/auth.dart';
 import 'package:my_pharma_guide/shared/constants.dart';
+import 'package:my_pharma_guide/shared/loading.dart';
 
 class SignIn extends StatefulWidget {
 
@@ -16,9 +17,13 @@ class SignIn extends StatefulWidget {
 class _SignInState extends State<SignIn> {
 
   final AuthService _auth = AuthService();
+  final _formKey = GlobalKey<FormState>();
+  bool loading = false;
 
   String email = '';
   String password = '';
+  String error = '';
+  bool hidePassword = true;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +33,7 @@ class _SignInState extends State<SignIn> {
       ),
     );
 
-    return Scaffold(
+    return loading ? Loading() : Scaffold(
       backgroundColor: Colors.grey[400],
       body: Center(
         child: SingleChildScrollView(
@@ -45,27 +50,55 @@ class _SignInState extends State<SignIn> {
               const SizedBox(height: 15.0),
               Container(
                 padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 40.0),
-                child: Column(
-                  children: [
-                    TextFormField(
-                      decoration: textInputDecoration.copyWith(hintText: 'email'),
-                      onChanged: (val) {
-                        setState(() {
-                          email = val;
-                        });
-                      },
-                    ),
-                    const SizedBox(height: 22.0,),
-                    TextFormField(
-                      decoration: textInputDecoration.copyWith(hintText: 'password'),
-                      obscureText: true,
-                      onChanged: (val) {
-                        setState(() {
-                          password = val;
-                        });
-                      },
-                    ),
-                  ],
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      TextFormField(
+                        validator: (val) {
+                          if (val == null || val.isEmpty){
+                            return 'Enter an email';
+                          } else{
+                            return null;
+                          }
+                        },
+                        decoration: textInputDecoration.copyWith(hintText: 'email'),
+                        onChanged: (val) {
+                          setState(() {
+                            email = val;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 22.0,),
+                      TextFormField(
+                        validator: (val) {
+                          if (val==null || val.length<6){
+                            return 'Enter a password 6+ chars length';
+                          } else{
+                            return null;
+                          }
+                        },
+                        decoration: textInputDecoration.copyWith(
+                          hintText: 'password',
+                          suffixIcon: IconButton(
+                            icon: hidePassword ? const Icon(Icons.visibility_off) : const Icon(Icons.visibility),
+                            onPressed: () {
+                              setState(() {
+                                hidePassword = !hidePassword;
+                              });
+                            },
+                            color: Colors.grey[500],
+                          ),
+                        ),
+                        obscureText: hidePassword,
+                        onChanged: (val) {
+                          setState(() {
+                            password = val;
+                          });
+                        },
+                      ),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 2.0,),
@@ -74,8 +107,18 @@ class _SignInState extends State<SignIn> {
                 children: [
                   ElevatedButton(
                     onPressed: () async {
-                      print(email);
-                      print(password);
+                      if (_formKey.currentState?.validate() == true){
+                        setState(() {
+                          loading = true;
+                        });
+                        dynamic result = await _auth.signInWithEmailAndPassword(email, password);
+                        if (result == null){
+                          setState(() {
+                            error = 'Please check your email or password';
+                            loading = false;
+                          });
+                        }
+                      }
                     },
                     child: const Text('Sign In'),
                     style: ElevatedButton.styleFrom(
@@ -102,8 +145,16 @@ class _SignInState extends State<SignIn> {
                   ),
                 ],
               ),
+              const SizedBox(height: 10.0,),
+              Text(
+                error,
+                style: TextStyle(
+                  color: Colors.red,
+                  fontSize: 14.0,
+                ),
+              ),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 20.0),
+                padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 10.0),
                 child: Row(
                   children: [
                     Expanded(
@@ -126,12 +177,14 @@ class _SignInState extends State<SignIn> {
               ),
               TextButton(
                 onPressed: () async{
+                  setState(() {
+                    loading = true;
+                  });
                   dynamic result = await _auth.signInAnon();
                   if (result == null){
-                    print('error');
-                  } else{
-                    print('signed in');
-                    print(result.uid);
+                    setState(() {
+                      loading = false;
+                    });
                   }
                 },
                 child: Text(

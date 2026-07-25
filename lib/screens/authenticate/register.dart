@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:my_pharma_guide/services/auth.dart';
 import 'package:my_pharma_guide/shared/constants.dart';
 
+import '../../shared/loading.dart';
+
 class Register extends StatefulWidget {
   final Function toggleView;
   Register({required this.toggleView});
@@ -13,13 +15,17 @@ class Register extends StatefulWidget {
 class _RegisterState extends State<Register> {
 
   final AuthService _auth = AuthService();
+  final _formKey = GlobalKey<FormState>();
+  bool loading = false;
 
   String email = '';
   String password = '';
+  String error = '';
+  bool hidePassword = true;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return loading ? Loading() : Scaffold(
         backgroundColor: Colors.grey[400],
         body: Center(
           child: SingleChildScrollView(
@@ -36,27 +42,54 @@ class _RegisterState extends State<Register> {
                 const SizedBox(height: 15.0),
                 Container(
                   padding: const EdgeInsets.symmetric(vertical: 20.0, horizontal: 40.0),
-                  child: Column(
-                    children: [
-                      TextFormField(
-                        decoration: textInputDecoration.copyWith(hintText: 'email'),
-                        onChanged: (val) {
-                          setState(() {
-                            email = val;
-                          });
-                        },
-                      ),
-                      const SizedBox(height: 22.0,),
-                      TextFormField(
-                        decoration: textInputDecoration.copyWith(hintText: 'password'),
-                        obscureText: true,
-                        onChanged: (val) {
-                          setState(() {
-                            password = val;
-                          });
-                        },
-                      ),
-                    ],
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      children: [
+                        TextFormField(
+                          validator: (val) {
+                            if (val==null || val.isEmpty){
+                              return 'Enter an email';
+                            } else{
+                              return null;
+                            }
+                          },
+                          decoration: textInputDecoration.copyWith(hintText: 'email'),
+                          onChanged: (val) {
+                            setState(() {
+                              email = val;
+                            });
+                          },
+                        ),
+                        const SizedBox(height: 22.0,),
+                        TextFormField(
+                          validator: (val) {
+                            if (val==null || val.length<6){
+                              return 'Enter a password 6+ chars length';
+                            } else{
+                              return null;
+                            }
+                          },
+                          decoration: textInputDecoration.copyWith(
+                            hintText: 'password',
+                            suffixIcon: IconButton(
+                              icon: hidePassword ? const Icon(Icons.visibility_off) : const Icon(Icons.visibility),
+                              onPressed: () {
+                                setState(() {
+                                  hidePassword = !hidePassword;
+                                });
+                              },
+                            ),
+                          ),
+                          obscureText: hidePassword,
+                          onChanged: (val) {
+                            setState(() {
+                              password = val;
+                            });
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 const SizedBox(height: 2.0,),
@@ -78,7 +111,20 @@ class _RegisterState extends State<Register> {
                     ),
                     SizedBox(width: 20.0,),
                     ElevatedButton(
-                      onPressed: () {},
+                      onPressed: () async {
+                        if (_formKey.currentState?.validate() == true) {
+                          setState(() {
+                            loading = true;
+                          });
+                          dynamic result = await _auth.signUp(email, password);
+                          if(result == null){
+                            setState(() {
+                              error = 'Please supply a valid email or password';
+                              loading = false;
+                            });
+                          }
+                        }
+                      },
                       child: const Text('Sign Up'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.black,
@@ -89,6 +135,14 @@ class _RegisterState extends State<Register> {
                       ),
                     ),
                   ],
+                ),
+                const SizedBox(height: 10.0,),
+                Text(
+                  error,
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: 14.0,
+                  ),
                 ),
               ],
             ),
