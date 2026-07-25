@@ -3,7 +3,8 @@ import 'package:my_pharma_guide/services/auth.dart';
 import 'package:my_pharma_guide/shared/constants.dart';
 
 class Register extends StatefulWidget {
-  const Register({super.key});
+  final Function toggleView;
+  Register({required this.toggleView});
 
   @override
   State<Register> createState() => _RegisterState();
@@ -59,19 +60,35 @@ class _RegisterState extends State<Register> {
                   ),
                 ),
                 const SizedBox(height: 2.0,),
-                ElevatedButton(
-                  onPressed: () {
-                    print(email);
-                    print(password);
-                  },
-                  child: const Text('Sign Up'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.black,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () async {
+                        widget.toggleView();
+                      },
+                      child: const Text('Sign In'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.black,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                      ),
                     ),
-                  ),
+                    SizedBox(width: 20.0,),
+                    ElevatedButton(
+                      onPressed: () {},
+                      child: const Text('Sign Up'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.black,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

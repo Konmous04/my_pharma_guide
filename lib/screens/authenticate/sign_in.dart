@@ -4,7 +4,10 @@ import 'package:my_pharma_guide/services/auth.dart';
 import 'package:my_pharma_guide/shared/constants.dart';
 
 class SignIn extends StatefulWidget {
-  const SignIn({super.key});
+
+  final Function toggleView;
+
+  SignIn({required this.toggleView});
 
   @override
   State<SignIn> createState() => _SignInState();
@@ -85,7 +88,9 @@ class _SignInState extends State<SignIn> {
                   ),
                   SizedBox(width: 20.0,),
                   ElevatedButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      widget.toggleView();
+                    },
                     child: const Text('Sign Up'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.black,
