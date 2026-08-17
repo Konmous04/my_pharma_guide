@@ -1,26 +1,36 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:my_pharma_guide/models/my_user.dart';
-import 'package:my_pharma_guide/screens/maps/hospitals.dart';
-import 'package:my_pharma_guide/screens/maps/pharmacies.dart';
 import 'package:my_pharma_guide/services/auth.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class Home extends StatelessWidget {
-  Home({super.key});
+  const Home({super.key});
 
-  final AuthService _auth = AuthService();
+  Future<void> openGoogleMaps(String search) async{
+    final Uri googleMapsUrl = Uri.https(
+      'www.google.com',
+      '/maps/search/',
+      {'api': '1', 'query': search},
+    );
+
+    if (await canLaunchUrl(googleMapsUrl)){
+      await launchUrl(googleMapsUrl, mode: LaunchMode.externalApplication);
+    } else{
+      print('error while opening google maps');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
 
     final user = Provider.of<MyUser>(context);
-    final bool isAnon = user.isAnonymous ? true : false;
+    final bool isAnon = user.isAnonymous;
 
     return Scaffold(
       backgroundColor: Colors.grey[400],
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'My Pharma Guide',
           style: TextStyle(
               fontSize: 25.0,
@@ -47,10 +57,7 @@ class Home extends StatelessWidget {
                 title: const Text('Nearby Pharmacies'),
                 onTap: () {
                   Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const Pharmacies())
-                  );
+                  openGoogleMaps('Φαρμακεία');
                 },
               ),
               ListTile(
@@ -58,17 +65,23 @@ class Home extends StatelessWidget {
                 title: const Text('Nearby Hospitals'),
                 onTap: () {
                   Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const Hospitals())
-                  );
+                  openGoogleMaps('Νοσοκομεία');
                 },
               ),
               ListTile(
-                leading: const Icon(Icons.logout_outlined),
-                title: const Text('Logout'),
+                leading: Icon(
+                  Icons.logout_outlined,
+                  color: Colors.red[800],
+                ),
+                title: Text(
+                  'Logout',
+                  style: TextStyle(
+                    color: Colors.red[800],
+                  ),
+                ),
                 onTap: () async {
-                  await _auth.signOut();
+                  Navigator.pop(context);
+                  await AuthService().signOut();
                 },
               ),
             ],
