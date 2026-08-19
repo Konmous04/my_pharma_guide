@@ -20,6 +20,7 @@ class _RegisterState extends State<Register> {
 
   String email = '';
   String password = '';
+  String username = '';
   String error = '';
   bool hidePassword = true;
 
@@ -58,6 +59,22 @@ class _RegisterState extends State<Register> {
                           onChanged: (val) {
                             setState(() {
                               email = val;
+                            });
+                          },
+                        ),
+                        const SizedBox(height: 22.0,),
+                        TextFormField(
+                          validator: (val) {
+                            if (val==null || val.isEmpty){
+                              return 'Enter a username';
+                            } else{
+                              return null;
+                            }
+                          },
+                          decoration: textInputDecoration.copyWith(hintText: 'username'),
+                          onChanged: (val) {
+                            setState(() {
+                              username = val;
                             });
                           },
                         ),
@@ -116,7 +133,7 @@ class _RegisterState extends State<Register> {
                           setState(() {
                             loading = true;
                           });
-                          dynamic result = await _auth.signUp(email, password);
+                          dynamic result = await _auth.signUp(email, password, username);
                           if(result == null){
                             setState(() {
                               error = 'Please supply a valid email or password';
