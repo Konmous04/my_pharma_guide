@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_pharma_guide/models/my_user.dart';
+import 'package:my_pharma_guide/screens/settings/settings.dart';
 import 'package:my_pharma_guide/services/auth.dart';
 import 'package:my_pharma_guide/shared/guest_buttons.dart';
 import 'package:provider/provider.dart';
@@ -48,19 +49,31 @@ class Home extends StatelessWidget {
           color: Colors.grey[350],
           child: ListView(
             children: [
-              const SizedBox(height: 10.0,),
               Center(
-                child: isAnon ? GuestButtons() : Text(
-                  'Hi, ${user.username}' ?? '',
-                  style: TextStyle(
-                    fontSize: 20.0,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1.5,
-                    color: Colors.black,
+                child: isAnon ? GuestButtons() : Padding(
+                  padding: const EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Hi, ${user.username}',
+                        style: TextStyle(
+                          fontSize: 20.0,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.5,
+                          color: Colors.black,
+                        ),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => const Settings()));
+                        },
+                        icon: Icon(Icons.settings),
+                      ),
+                    ],
                   ),
                 ),
               ),
-              const SizedBox(height: 10.0,),
               Expanded(
                 child: Divider(
                   thickness: 1.5,
