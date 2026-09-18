@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:my_pharma_guide/services/auth.dart';
 import 'package:my_pharma_guide/shared/constants.dart';
+import 'package:my_pharma_guide/shared/loading.dart';
 
 class AccountSettings extends StatefulWidget {
   const AccountSettings({super.key});
@@ -14,10 +15,11 @@ class _AccountSettingsState extends State<AccountSettings> {
   final _formKey = GlobalKey<FormState>();
 
   String username = '';
+  bool loading = false;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return loading ? Loading() : Scaffold(
       backgroundColor: Colors.grey[400],
       appBar: AppBar(
         title: const Text(
@@ -65,8 +67,20 @@ class _AccountSettingsState extends State<AccountSettings> {
                 ElevatedButton(
                   onPressed: () async {
                     if(_formKey.currentState?.validate() == true){
-                      await _auth.updateUsername(username);
-                      Navigator.pop(context);
+                      bool? confirm = await _dialogBuilder(context, 'Change Username');
+                      if (confirm == true){
+                        setState(() {
+                          loading = true;
+                        });
+                        await _auth.updateUsername(username);
+                        if (context.mounted){
+                          Navigator.pop(context);
+                        }
+                      } else{
+                        setState(() {
+                          loading = false;
+                        });
+                      }
                     }
                   },
                   style: ElevatedButton.styleFrom(
@@ -88,8 +102,20 @@ class _AccountSettingsState extends State<AccountSettings> {
                 const SizedBox(height: 10.0,),
                 ElevatedButton(
                   onPressed: () async{
-                    bool result = await AuthService().deleteAccount();
-                    if(context.mounted && result)
+                    bool? confirm = await _dialogBuilder(context, 'Delete Account');
+                    if (confirm == true){
+                      setState(() {
+                        loading = true;
+                      });
+                      bool result = await AuthService().deleteAccount();
+                      if(context.mounted && result){
+                        Navigator.of(context).popUntil((route) => route.isFirst);
+                      } else if(mounted){
+                        setState(() {
+                          loading = false;
+                        });
+                      }
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.black,
@@ -105,6 +131,39 @@ class _AccountSettingsState extends State<AccountSettings> {
           ),
         ),
       ),
+    );
+  }
+
+  Future<bool?> _dialogBuilder(BuildContext context, String title) async {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text('Are you sure you want to proceed in this action?'),
+          backgroundColor: Colors.grey[200],
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context, false);
+              },
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.grey[700],
+              ),
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context, true);
+              },
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.grey[700],
+              ),
+              child: Text('Continue'),
+            ),
+          ],
+        );
+      }
     );
   }
 }

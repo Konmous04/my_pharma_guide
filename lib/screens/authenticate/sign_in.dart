@@ -8,7 +8,7 @@ class SignIn extends StatefulWidget {
 
   final Function toggleView;
 
-  SignIn({required this.toggleView});
+  const SignIn({super.key, required this.toggleView});
 
   @override
   State<SignIn> createState() => _SignInState();
@@ -120,7 +120,6 @@ class _SignInState extends State<SignIn> {
                         }
                       }
                     },
-                    child: const Text('Sign In'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.black,
                       foregroundColor: Colors.white,
@@ -128,13 +127,13 @@ class _SignInState extends State<SignIn> {
                         borderRadius: BorderRadius.circular(10.0),
                       ),
                     ),
+                    child: const Text('Sign In'),
                   ),
                   SizedBox(width: 20.0,),
                   ElevatedButton(
                     onPressed: () {
                       widget.toggleView();
                     },
-                    child: const Text('Sign Up'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.black,
                       foregroundColor: Colors.white,
@@ -142,6 +141,7 @@ class _SignInState extends State<SignIn> {
                         borderRadius: BorderRadius.circular(10.0),
                       ),
                     ),
+                    child: const Text('Sign Up'),
                   ),
                 ],
               ),

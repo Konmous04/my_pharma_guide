@@ -54,7 +54,10 @@ class Settings extends StatelessWidget {
             );
           },
           separatorBuilder: (BuildContext context, int index){
-            return const Divider();
+            return Divider(
+              thickness: 1.5,
+              color: Colors.grey[200],
+            );
           },
           itemCount: mySettings.length,
         ),
