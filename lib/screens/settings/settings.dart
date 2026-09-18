@@ -14,7 +14,7 @@ class Settings extends StatelessWidget {
         title: 'Account',
         icon: Icons.account_circle_rounded,
         onTap: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) => const AccountSettings()));
+          Navigator.push(context, MaterialPageRoute(builder: (context) => AccountSettings()));
         }
       ),
       MySettings(

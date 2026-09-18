@@ -29,6 +29,11 @@ class Home extends StatelessWidget {
     final user = Provider.of<MyUser>(context);
     final bool isAnon = user.isAnonymous;
 
+    String displayName = user.username ?? '';
+    if(displayName.length > 12){
+      displayName = '${displayName.substring(0, 12)}...';
+    }
+
     return Scaffold(
       backgroundColor: Colors.grey[400],
       appBar: AppBar(
@@ -56,7 +61,7 @@ class Home extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'Hi, ${user.username}',
+                        'Hi, ${displayName}',
                         style: TextStyle(
                           fontSize: 20.0,
                           fontWeight: FontWeight.bold,

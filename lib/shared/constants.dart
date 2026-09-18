@@ -13,4 +13,12 @@ final textInputDecoration = InputDecoration(
     borderRadius: BorderRadius.circular(15.0),
     borderSide: const BorderSide(color: Colors.white, width: 2.0),
   ),
+  errorBorder: OutlineInputBorder(
+    borderRadius: BorderRadius.circular(15.0),
+    borderSide: const BorderSide(color: Colors.red, width: 1.5),
+  ),
+  focusedErrorBorder: OutlineInputBorder(
+    borderRadius: BorderRadius.circular(15.0),
+    borderSide: const BorderSide(color: Colors.red, width: 2.0),
+  ),
 );

@@ -40,12 +40,28 @@ class AuthService{
     }
   }
 
-  //register with email and password
+  //register with email, password and username
   Future signUp(String email, String password, String username) async{
     try{
       UserCredential result = await _auth.createUserWithEmailAndPassword(email: email, password: password);
       User? user = result.user;
       if (user!=null){
+        await user.updateDisplayName(username);
+        await user.reload();
+        user = _auth.currentUser;
+      }
+      return _myUserFromUser(user);
+    } catch(e){
+      print(e.toString());
+      return null;
+    }
+  }
+
+  //update username
+  Future updateUsername(String username) async{
+    try {
+      User? user = _auth.currentUser;
+      if (user!=null) {
         await user.updateDisplayName(username);
         await user.reload();
         user = _auth.currentUser;
@@ -64,6 +80,21 @@ class AuthService{
     } catch(e){
       print(e.toString());
       return null;
+    }
+  }
+
+  //delete user
+  Future deleteAccount() async{
+    try{
+      User? user = _auth.currentUser;
+      if(user!=null){
+        await user.delete();
+        return true;
+      }
+      return false;
+    } catch(e) {
+      print(e.toString());
+      return false;
     }
   }
 }
