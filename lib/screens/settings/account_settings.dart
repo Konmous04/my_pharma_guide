@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:my_pharma_guide/services/auth.dart';
 import 'package:my_pharma_guide/shared/constants.dart';
 import 'package:my_pharma_guide/shared/loading.dart';
+import 'package:my_pharma_guide/shared/dialogs.dart';
 
 class AccountSettings extends StatefulWidget {
   const AccountSettings({super.key});
@@ -16,6 +17,7 @@ class _AccountSettingsState extends State<AccountSettings> {
 
   String username = '';
   bool loading = false;
+  String wrongPassword = '';
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +69,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                 ElevatedButton(
                   onPressed: () async {
                     if(_formKey.currentState?.validate() == true){
-                      bool? confirm = await _dialogBuilder(context, 'Change Username');
+                      bool? confirm = await dialogBuilderChangeUsername(context);
                       if (confirm == true){
                         setState(() {
                           loading = true;
@@ -102,17 +104,25 @@ class _AccountSettingsState extends State<AccountSettings> {
                 const SizedBox(height: 10.0,),
                 ElevatedButton(
                   onPressed: () async{
-                    bool? confirm = await _dialogBuilder(context, 'Delete Account');
-                    if (confirm == true){
+                    String? password = await dialogBuilderDeletingAccount(context);
+                    if (password != null){
                       setState(() {
                         loading = true;
                       });
-                      bool result = await AuthService().deleteAccount();
-                      if(context.mounted && result){
-                        Navigator.of(context).popUntil((route) => route.isFirst);
-                      } else if(mounted){
+                      dynamic reAuth = await _auth.reAuthenticate(password);
+                      if (reAuth){
+                        bool result = await AuthService().deleteAccount();
+                        if(context.mounted && result){
+                          Navigator.of(context).popUntil((route) => route.isFirst);
+                        } else if(mounted){
+                          setState(() {
+                            loading = false;
+                          });
+                        }
+                      } else{
                         setState(() {
                           loading = false;
+                          wrongPassword = 'Wrong password! Try again';
                         });
                       }
                     }
@@ -126,6 +136,13 @@ class _AccountSettingsState extends State<AccountSettings> {
                   ),
                   child: const Text('Delete Account'),
                 ),
+                const SizedBox(height: 15.0,),
+                Text(
+                  wrongPassword,
+                  style: TextStyle(
+                    color: Colors.red,
+                  ),
+                ),
               ],
             ),
           ),
@@ -134,36 +151,4 @@ class _AccountSettingsState extends State<AccountSettings> {
     );
   }
 
-  Future<bool?> _dialogBuilder(BuildContext context, String title) async {
-    return showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(title),
-          content: Text('Are you sure you want to proceed in this action?'),
-          backgroundColor: Colors.grey[200],
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context, false);
-              },
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.grey[700],
-              ),
-              child: Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context, true);
-              },
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.grey[700],
-              ),
-              child: Text('Continue'),
-            ),
-          ],
-        );
-      }
-    );
-  }
 }
