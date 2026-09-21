@@ -97,4 +97,23 @@ class AuthService{
       return false;
     }
   }
+
+  //reauthenticate for deleting account
+  Future reAuthenticate(String password) async{
+    try{
+      User? user = _auth.currentUser;
+      if(user!=null && user.email!=null){
+        AuthCredential credential = EmailAuthProvider.credential(
+          email: user.email!,
+          password: password
+        );
+        await user.reauthenticateWithCredential(credential);
+        return true;
+      }
+      return false;
+    } catch(e){
+      print(e.toString());
+      return false;
+    }
+  }
 }
