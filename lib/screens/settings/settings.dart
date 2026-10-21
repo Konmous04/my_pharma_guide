@@ -3,8 +3,8 @@ import 'package:my_pharma_guide/models/my_settings.dart';
 import 'package:my_pharma_guide/screens/settings/about_settings.dart';
 import 'package:my_pharma_guide/screens/settings/account_settings.dart';
 
-class Settings extends StatelessWidget {
-  const Settings({super.key});
+class SettingsPage extends StatelessWidget {
+  const SettingsPage({super.key});
 
   @override
   Widget build(BuildContext context) {

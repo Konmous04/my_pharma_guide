@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:my_pharma_guide/models/medicines.dart';
 import 'package:my_pharma_guide/models/my_user.dart';
 import 'package:my_pharma_guide/screens/settings/settings.dart';
 import 'package:my_pharma_guide/services/auth.dart';
 import 'package:my_pharma_guide/shared/guest_buttons.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:my_pharma_guide/services/database.dart';
+import 'med_list.dart';
 
 class Home extends StatelessWidget {
   const Home({super.key});
@@ -34,98 +37,103 @@ class Home extends StatelessWidget {
       displayName = '${displayName.substring(0, 12)}...';
     }
 
-    return Scaffold(
-      backgroundColor: Colors.grey[400],
-      appBar: AppBar(
-        title: const Text(
-          'My Pharma Guide',
-          style: TextStyle(
-              fontSize: 25.0,
-              letterSpacing: 1.0,
-              fontWeight: FontWeight.bold
+    return StreamProvider<List<Medicines>?>.value(
+      value: DatabaseService().medicines,
+      initialData: null,
+      child: Scaffold(
+        backgroundColor: Colors.grey[400],
+        appBar: AppBar(
+          title: const Text(
+            'My Pharma Guide',
+            style: TextStyle(
+                fontSize: 25.0,
+                letterSpacing: 1.0,
+                fontWeight: FontWeight.bold
+            ),
           ),
+          backgroundColor: Colors.grey[500],
+          elevation: 0.0,
+          centerTitle: true,
         ),
-        backgroundColor: Colors.grey[500],
-        elevation: 0.0,
-        centerTitle: true,
-      ),
-      drawer: Drawer(
-        child: Container(
-          color: Colors.grey[350],
-          child: ListView(
-            children: [
-              Center(
-                child: isAnon ? GuestButtons() : Padding(
-                  padding: const EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Hi, ${displayName}',
-                        style: TextStyle(
-                          fontSize: 20.0,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1.5,
-                          color: Colors.black,
+        drawer: Drawer(
+          child: Container(
+            color: Colors.grey[350],
+            child: ListView(
+              children: [
+                Center(
+                  child: isAnon ? GuestButtons() : Padding(
+                    padding: const EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Hi, ${displayName}',
+                          style: TextStyle(
+                            fontSize: 20.0,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.5,
+                            color: Colors.black,
+                          ),
                         ),
-                      ),
-                      IconButton(
-                        onPressed: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => const Settings()));
-                        },
-                        icon: Icon(Icons.settings),
-                      ),
-                    ],
+                        IconButton(
+                          onPressed: () {
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsPage()));
+                          },
+                          icon: Icon(Icons.settings),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              Expanded(
-                child: Divider(
-                  thickness: 1.5,
-                  color: Colors.grey[200],
+                Expanded(
+                  child: Divider(
+                    thickness: 1.5,
+                    color: Colors.grey[200],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 10.0,),
-              ListTile(
-                leading: const Icon(Icons.home),
-                title: const Text('Home'),
-                onTap: () => Navigator.pop(context),
-              ),
-              ListTile(
-                leading: const Icon(Icons.medical_services),
-                title: const Text('Nearby Pharmacies'),
-                onTap: () {
-                  Navigator.pop(context);
-                  openGoogleMaps('Φαρμακεία');
-                },
-              ),
-              ListTile(
-                leading: const Icon(Icons.local_hospital),
-                title: const Text('Nearby Hospitals'),
-                onTap: () {
-                  Navigator.pop(context);
-                  openGoogleMaps('Νοσοκομεία');
-                },
-              ),
-              ListTile(
-                leading: Icon(
-                  Icons.logout_outlined,
-                  color: Colors.red[800],
+                const SizedBox(height: 10.0,),
+                ListTile(
+                  leading: const Icon(Icons.home),
+                  title: const Text('Home'),
+                  onTap: () => Navigator.pop(context),
                 ),
-                title: Text(
-                  'Logout',
-                  style: TextStyle(
+                ListTile(
+                  leading: const Icon(Icons.medical_services),
+                  title: const Text('Nearby Pharmacies'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    openGoogleMaps('Φαρμακεία');
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.local_hospital),
+                  title: const Text('Nearby Hospitals'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    openGoogleMaps('Νοσοκομεία');
+                  },
+                ),
+                ListTile(
+                  leading: Icon(
+                    Icons.logout_outlined,
                     color: Colors.red[800],
                   ),
+                  title: Text(
+                    'Logout',
+                    style: TextStyle(
+                      color: Colors.red[800],
+                    ),
+                  ),
+                  onTap: () async {
+                    Navigator.pop(context);
+                    await AuthService().signOut();
+                  },
                 ),
-                onTap: () async {
-                  Navigator.pop(context);
-                  await AuthService().signOut();
-                },
-              ),
-            ],
+              ],
+            ),
           ),
         ),
+        body: MedList(),
       ),
     );
   }
