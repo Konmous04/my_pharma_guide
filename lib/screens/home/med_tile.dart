@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:my_pharma_guide/models/medicines.dart';
+import 'package:my_pharma_guide/screens/home/show_med_description.dart';
 
 class MedTile extends StatelessWidget {
 
@@ -9,7 +10,7 @@ class MedTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(top: 15.0),
+      padding: EdgeInsets.only(top: 10.0),
       child: Card(
         margin: EdgeInsets.fromLTRB(20.0, 6.0, 20.0, 0),
         child: ListTile(
@@ -28,7 +29,10 @@ class MedTile extends StatelessWidget {
               fontWeight: FontWeight.bold,
             ),
           ),
-          subtitle: Text('${med.activeSubstance} \n${med.description}'),
+          subtitle: Text(med.activeSubstance),
+          onTap: () {
+            showMedDescription(context, med);
+          },
         ),
       ),
     );

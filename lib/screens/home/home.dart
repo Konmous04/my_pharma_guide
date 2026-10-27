@@ -37,9 +37,9 @@ class Home extends StatelessWidget {
       displayName = '${displayName.substring(0, 12)}...';
     }
 
-    return StreamProvider<List<Medicines>?>.value(
+    return StreamProvider<List<Medicines>>.value(
       value: DatabaseService().medicines,
-      initialData: null,
+      initialData: const [],
       child: Scaffold(
         backgroundColor: Colors.grey[400],
         appBar: AppBar(
@@ -85,11 +85,9 @@ class Home extends StatelessWidget {
                     ),
                   ),
                 ),
-                Expanded(
-                  child: Divider(
-                    thickness: 1.5,
-                    color: Colors.grey[200],
-                  ),
+                Divider(
+                  thickness: 1.5,
+                  color: Colors.grey[200],
                 ),
                 const SizedBox(height: 10.0,),
                 ListTile(
