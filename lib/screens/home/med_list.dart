@@ -12,22 +12,96 @@ class MedList extends StatefulWidget {
 }
 
 class _MedListState extends State<MedList> {
+
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
+  String _removeAccents(String str) {
+    const withAccents = 'άέήίόύώϊϋΐΰΆΈΉΊΌΎΏ';
+    const withoutAccents = 'αεηιουωιυιυΑΕΗΙΟΥΩ';
+
+    String result = str;
+    for (int i=0; i<withoutAccents.length; i++){
+      result = result.replaceAll(withAccents[i], withoutAccents[i]);
+    }
+    return result;
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
 
     final meds = Provider.of<List<Medicines>?>(context);
 
-    if(meds==null || meds.isEmpty){
+    if(meds==null){
       return const Loading();
     }
 
-    final shuffleMeds = List<Medicines>.from(meds)..shuffle();
+    if(meds.isEmpty){
+      return const Center(
+        child: Text('Δεν υπάρχουν διαθέσιμα φάρμακα.'),
+      );
+    }
 
-    return ListView.builder(
-      itemCount: shuffleMeds.length,
-      itemBuilder: (context, index) {
-        return MedTile(med: shuffleMeds[index]);
-      },
+    final cleanQuery = _removeAccents(_searchQuery.trim().toLowerCase());
+    final filteredMeds = meds.where((med) {
+      final cleanName = _removeAccents(med.name.toLowerCase());
+      final cleanSubstance = _removeAccents(med.activeSubstance.toLowerCase());
+      final matchesName = cleanName.contains(cleanQuery);
+      final matchesSubstance = cleanSubstance.contains(cleanQuery);
+      return matchesName || matchesSubstance;
+    }).toList();
+
+    return Column(
+      children: [
+        const SizedBox(height: 16.0,),
+
+        //αναζήτηση
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20.0,),
+          child: SearchBar(
+            controller: _searchController,
+            hintText: 'Αναζήτηση φαρμάκου ή ουσίας...',
+            leading: const Icon(Icons.search),
+            trailing: [
+              if (_searchQuery.isNotEmpty)
+                IconButton(
+                  onPressed: () {
+                    _searchController.clear();
+                    setState(() {
+                      _searchQuery = '';
+                    });
+                  },
+                  icon: const Icon(Icons.clear),
+                ),
+            ],
+            onChanged: (value) {
+              setState(() {
+                _searchQuery = value;
+              });
+            },
+          ),
+        ),
+
+        //λίστα φαρμάκων
+        Expanded(
+          child: filteredMeds.isEmpty
+              ? const Center(
+                  child: Text('Δεν βρέθηκαν αποτελέσματα.'),
+                )
+              : ListView.builder(
+                  itemCount: filteredMeds.length,
+                  itemBuilder: (context, index) {
+                    return MedTile(med: filteredMeds[index]);
+                  },
+                ),
+        ),
+      ],
     );
   }
 }
